@@ -111,3 +111,8 @@ div.box {
 .keys:hover {
     background-color: rgba(45, 45, 46, 0.9);
 }
+
+div.bold {
+    font-size: 24px;
+    font-weight: 900;
+}
