@@ -49,6 +49,7 @@ const operators = '+-*/';
 const buttons = document.querySelector('.buttons');
 const display = document.querySelector('#display');
 const equalsBtn = document.querySelector('#equals-btn');
+const resultSection = document.querySelector('#results');
 let resultFlag = false;
 
 buttons.addEventListener('click', setDisplay);
@@ -93,8 +94,29 @@ function calculate (event) {
   result = operate(operator, operand1, operand2);
   display.classList.add('bold');
   display.textContent = result;
+  appendResults();
   // clear the variables for other calculations
   operator = '';
   operand1 = '';
   operand2 = '';
+}
+
+function appendResults () {
+  const resultBox = document.createElement('div');
+  resultBox.classList.add('result-box', 'box');
+  const working = document.createElement('span');
+  const equals = document.createElement('span');
+  const answer = document.createElement('span');
+  working.id = 'working';
+  working.textContent = `${operand1}${operator}${operand2}`;
+  equals.id = 'equals';
+  equals.textContent = '=';
+  answer.id = 'answer';
+  answer.textContent = `${result}`;
+
+  resultBox.appendChild(working);
+  resultBox.appendChild(equals);
+  resultBox.appendChild(answer);
+
+  resultSection.appendChild(resultBox);
 }

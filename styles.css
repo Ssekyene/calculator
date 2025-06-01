@@ -67,10 +67,12 @@ body {
 }
 
 .display {
-    padding: 10px 0;
     border-top: 2px solid rgb(23 24 26);
     border-bottom: 2px solid rgb(23 24 26);
     width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
 }
 
 div.box {
