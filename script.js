@@ -51,7 +51,7 @@ const display = document.querySelector('#display');
 const equalsBtn = document.querySelector('#equals-btn');
 const resultSection = document.querySelector('#results');
 let resultFlag = false;
-let signFlag = false; // off
+
 
 buttons.addEventListener('click', setDisplay);
 equalsBtn.addEventListener('click', calculate);
