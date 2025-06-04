@@ -15,7 +15,7 @@ function multiply(a, b) {
 
 function divide(a, b) {
     if (b === 0) {
-        return ("Math Error: Cannot divide by zero");
+        return Error("Math Error: Cannot divide by zero");
     }
     return a / b;
 }
@@ -35,7 +35,7 @@ function operate(operator, operand1, operand2) {
         case '/':
             return divide(a, b);
         default:
-            return "Syntax Error: Unknown operation";
+            return Error("Syntax Error: Unknown operation");
     }
 }
 
@@ -100,8 +100,13 @@ function calculate (event) {
   resultFlag = true;
   result = operate(operator, operand1, operand2);
   display.classList.add('bold');
-  if (Number.isNaN(result)) {
-    display.textContent = 'Syntax Error!';
+  if (Number.isNaN(result) || result instanceof Error) {
+    if (result instanceof Error) {
+      display.textContent = result.message;
+    } else {
+      display.textContent = 'Syntax Error!';
+
+    }
   } else {
     display.textContent = result;
   }
