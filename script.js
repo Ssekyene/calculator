@@ -51,6 +51,7 @@ const display = document.querySelector('#display');
 const equalsBtn = document.querySelector('#equals-btn');
 const resultSection = document.querySelector('#results');
 let resultFlag = false;
+let signFlag = false; // off
 
 buttons.addEventListener('click', setDisplay);
 equalsBtn.addEventListener('click', calculate);
@@ -63,26 +64,27 @@ function setDisplay(event) {
 
     // set values for only displayable charactors/symbols
     if (displayables.includes(value)) {
-      // first remove results styles for display for a fresh new entry of operations
+      // if equals is pressed, set operand1 to the recent result
       if (resultFlag) {
+        // first remove results styles for display for a fresh new entry of operations
         display.classList.remove('bold');
         resultFlag = false;
         operand1 = String(result);
       }
-      // set operand1 if the operator is not yet clicked or when operand1 is empty
+      // set operand1 if the operator is not yet caputured or when operand1 is empty
       else if (digits.includes(value) && (operator === '' || operand1 === '')) {
-        // if equals is pressed, set operand1 to the recent result
+          // operand is captured as an accumulating string
           operand1 += value;
           display.textContent += value;
-          console.log(operand1);
       }
 
-      // capture valid operators after getting operand1
-      if (operators.includes(value) && operand1 !== '') {
+      // capture valid operators after getting operand1 and no operator is captured yet
+      if (operators.includes(value) && operand1 !== '' && operator === '') {
         operator = value;
         display.textContent += value; 
       } else if (digits.includes(value) && operator !== '') {
-        // set operand2 after the operator is clicked
+        // set operand2 after the operator is caputured
+        // operand is captured as an accumulating string
         operand2 += value;
         display.textContent += value;
       }
@@ -94,6 +96,8 @@ function calculate (event) {
   result = operate(operator, operand1, operand2);
   display.classList.add('bold');
   display.textContent = result;
+  // incase of an error, reset the result to default
+  if (typeof result !== 'number') result = 0;
   appendResults();
   // clear the variables for other calculations
   operator = '';
@@ -118,5 +122,5 @@ function appendResults () {
   resultBox.appendChild(equals);
   resultBox.appendChild(answer);
 
-  resultSection.appendChild(resultBox);
+  resultSection.insertBefore(resultBox, resultSection.children[0]);
 }
