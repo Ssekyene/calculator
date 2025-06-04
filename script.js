@@ -22,8 +22,9 @@ function divide(a, b) {
 
 
 function operate(operator, operand1, operand2) {
-  const a = parseFloat(operand1);
-  const b = parseFloat(operand2);
+  // parse the strings to there relative numbers
+  const a = +operand1;
+  const b = +operand2;
     switch (operator) {
         case '+':
             return add(a, b);
@@ -51,6 +52,7 @@ const display = document.querySelector('#display');
 const equalsBtn = document.querySelector('#equals-btn');
 const resultSection = document.querySelector('#results');
 let resultFlag = false;
+let signFlag = false; // off
 
 
 buttons.addEventListener('click', setDisplay);
@@ -62,43 +64,54 @@ function setDisplay(event) {
     const target = event.target;
     const value = target.getAttribute('data-value');
 
-    // set values for only displayable charactors/symbols
     if (displayables.includes(value)) {
-      // if equals is pressed, set operand1 to the recent result
+      
+      // assign operand1 previous results if they exist
       if (resultFlag) {
-        // first remove results styles for display for a fresh new entry of operations
-        display.classList.remove('bold');
         resultFlag = false;
+        display.classList.remove('bold');
         operand1 = String(result);
+        display.textContent = operand1;
       }
-      // set operand1 if the operator is not yet caputured or when operand1 is empty
-      else if (digits.includes(value) && (operator === '' || operand1 === '')) {
-          // operand is captured as an accumulating string
-          operand1 += value;
-          display.textContent += value;
+      // signals for a sign flag if the first input of operand1
+      if (operand1 === '' && (value === '+' || value === '-')) {
+        signFlag = true; // on
       }
-
-      // capture valid operators after getting operand1 and no operator is captured yet
-      if (operators.includes(value) && operand1 !== '' && operator === '') {
-        operator = value;
-        display.textContent += value; 
-      } else if (digits.includes(value) && operator !== '') {
-        // set operand2 after the operator is caputured
-        // operand is captured as an accumulating string
+      if (digits.includes(value) && operator === '' && operand2 == '') {
+        operand1 += value;
+      } else if (operators.includes(value) && operator === '' && operand2 === '') {
+        if (signFlag) {
+          signFlag = false; // off
+            operand1 += value;
+        }
+        else {
+          operator += value;
+        }
+      } else {
         operand2 += value;
-        display.textContent += value;
       }
+      display.textContent += value;
     }
+
+    
 }
 
 function calculate (event) {
   resultFlag = true;
   result = operate(operator, operand1, operand2);
   display.classList.add('bold');
-  display.textContent = result;
+  if (Number.isNaN(result)) {
+    display.textContent = 'Syntax Error!';
+  } else {
+    display.textContent = result;
+  }
   // incase of an error, reset the result to default
-  if (typeof result !== 'number') result = 0;
-  appendResults();
+  if (typeof result === 'number' && !Number.isNaN(result)) {
+    appendResults();
+  } else {
+    // reset the results
+    result = 0;
+  }
   // clear the variables for other calculations
   operator = '';
   operand1 = '';
