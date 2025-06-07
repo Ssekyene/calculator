@@ -50,7 +50,7 @@ let previousResult = true; // display initialise with a 0
 let resultFlag = false;
 let signFlag = false; // off
 const displayables = '0123456789.+-*/%';
-const digits = '0123456789';
+const digits = '.0123456789';
 const operators = '+-*/';
 
 // DOM elements
@@ -111,7 +111,12 @@ function setDisplay(event) {
         else {
           operator += value;
         }
-      } else {
+      }
+      // deal with operand2 after the operator is captured (not empty)
+      else if (operator !== '') {
+        // incase the next pressed button is an operator and operand2 is already
+        // captured, refresh with answers to the previous two operands and continue
+        // with that
         if (operators.includes(value) && operand2 !== '') {
           const opt = value;
           value = updateResults();
@@ -124,6 +129,7 @@ function setDisplay(event) {
           operand2 += value;
         }
       }
+      // append the pressed button values to display
       display.textContent += value;
     }
 
@@ -145,7 +151,7 @@ function calculate () {
   } else {
     display.textContent = result;
   }
-  // validate the result
+  // validate the result from the calculation
   if (typeof result === 'number' && !Number.isNaN(result)) {
     appendResults();
   } 
@@ -161,6 +167,9 @@ function calculate () {
 }
 
 
+// updates the calculation with the result of the previous two
+// operands before calculating the third operand and appends
+// returns the result for display and continued operation
 function updateResults() {
   result = operate(operator, operand1, operand2);
   display.classList.add('bold');
