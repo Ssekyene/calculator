@@ -40,46 +40,58 @@ function operate(operator, operand1, operand2) {
 }
 
 /****  GLOBAL SCOPE *****/
+
+// initialisations
 let operand1 = '';
 let operand2 = '';
 let operator = '';
 let result = 0;
+let resultFlag = false;
+let signFlag = false; // off
 const displayables = '0123456789.+-*/%';
 const digits = '0123456789';
 const operators = '+-*/';
+
+// DOM elements
 const buttons = document.querySelector('.buttons');
 const display = document.querySelector('#display');
 const equalsBtn = document.querySelector('#equals-btn');
 const resultSection = document.querySelector('#results');
-let resultFlag = false;
-let signFlag = false; // off
+const clearBtn = document.querySelector('#all-clear');
 
 
 buttons.addEventListener('click', setDisplay);
 equalsBtn.addEventListener('click', calculate);
+clearBtn.addEventListener('click', clearData);
 
 /****  END GLOBAL SCOPE *****/
 
+// makes a screen display for the buttons being places
+// and captures the input variables
 function setDisplay(event) {
     const target = event.target;
-    const value = target.getAttribute('data-value');
+    let value = target.getAttribute('data-value');
 
     if (displayables.includes(value)) {
-      
+      // remove result styles if any
+      display.classList.remove('bold');
       // assign operand1 previous results if they exist
       if (resultFlag) {
         resultFlag = false;
-        display.classList.remove('bold');
         operand1 = String(result);
         display.textContent = operand1;
       }
-      // signals for a sign flag if the first input of operand1
+      // signals for a sign flag if the first input of operand1 is a plus or minus sign
       if (operand1 === '' && (value === '+' || value === '-')) {
         signFlag = true; // on
       }
+      // fill in for operand1 if the value is a digit
+      // while the operator and operand2 variables are empty
       if (digits.includes(value) && operator === '' && operand2 == '') {
-        operand1 += value;
-      } else if (operators.includes(value) && operator === '' && operand2 === '') {
+          operand1 += value;
+      } 
+      // if the value is an operator consider two situations down
+      else if (operators.includes(value) && operator === '' && operand2 === '') {
         if (signFlag) {
           signFlag = false; // off
             operand1 += value;
@@ -88,7 +100,17 @@ function setDisplay(event) {
           operator += value;
         }
       } else {
-        operand2 += value;
+        if (operators.includes(value) && operand2 !== '') {
+          const opt = value;
+          value = updateResults();
+          if (value) {
+            operand1 = value;
+            operator = opt;
+            value += opt;
+          }
+        } else {
+          operand2 += value;
+        }
       }
       display.textContent += value;
     }
@@ -96,7 +118,7 @@ function setDisplay(event) {
     
 }
 
-function calculate (event) {
+function calculate () {
   resultFlag = true;
   result = operate(operator, operand1, operand2);
   display.classList.add('bold');
@@ -123,6 +145,27 @@ function calculate (event) {
   operand2 = '';
 }
 
+function updateResults() {
+  result = operate(operator, operand1, operand2);
+  display.classList.add('bold');
+  if (Number.isNaN(result) || result instanceof Error) {
+    if (result instanceof Error) {
+      display.textContent = result.message;
+      return '';
+    } else {
+      display.textContent = 'Syntax Error!';
+      return '';
+
+    }
+  } else {
+    display.textContent = '';
+  }
+  
+  operand2 = '';
+  operator = '';
+  return result;
+}
+
 function appendResults () {
   const resultBox = document.createElement('div');
   resultBox.classList.add('result-box', 'box');
@@ -141,4 +184,16 @@ function appendResults () {
   resultBox.appendChild(answer);
 
   resultSection.insertBefore(resultBox, resultSection.children[0]);
+}
+
+function clearData(e) {
+  operand1 = '';
+  operand2 = '';
+  operator = '';
+  result = 0;
+  resultFlag = false;
+  signFlag = false; // off
+
+  display.textContent = '';
+  resultSection.textContent = '';
 }
