@@ -46,6 +46,7 @@ let operand1 = '';
 let operand2 = '';
 let operator = '';
 let result = 0;
+let previousResult = true; // display initialise with a 0 
 let resultFlag = false;
 let signFlag = false; // off
 const displayables = '0123456789.+-*/%';
@@ -59,6 +60,7 @@ const equalsBtn = document.querySelector('#equals-btn');
 const resultSection = document.querySelector('#results');
 const clearBtn = document.querySelector('#all-clear');
 
+display.classList.add('bold');
 
 buttons.addEventListener('click', setDisplay);
 equalsBtn.addEventListener('click', calculate);
@@ -79,8 +81,18 @@ function setDisplay(event) {
       if (resultFlag) {
         resultFlag = false;
         operand1 = String(result);
+        result = 0; // reset to default
         display.textContent = operand1;
       }
+      // clear the display box incase a button other than an operator is pressed
+      // to do a fresh input of operands and the operator
+      if (previousResult && !operators.includes(value) && result === 0 && operator === '') {
+        operand1 = '';
+        display.textContent = '';
+        previousResult = false;
+      }
+
+
       // signals for a sign flag if the first input of operand1 is a plus or minus sign
       if (operand1 === '' && (value === '+' || value === '-')) {
         signFlag = true; // on
@@ -118,6 +130,7 @@ function setDisplay(event) {
     
 }
 
+// makes a calculation when equals sign button is pressed
 function calculate () {
   resultFlag = true;
   result = operate(operator, operand1, operand2);
@@ -132,18 +145,21 @@ function calculate () {
   } else {
     display.textContent = result;
   }
-  // incase of an error, reset the result to default
+  // validate the result
   if (typeof result === 'number' && !Number.isNaN(result)) {
     appendResults();
-  } else {
-    // reset the results
+  } 
+  // incase of an error, reset the result to default
+  else {
     result = 0;
   }
-  // clear the variables for other calculations
+  // reset the variables for other calculations
   operator = '';
   operand1 = '';
   operand2 = '';
+  previousResult = true;
 }
+
 
 function updateResults() {
   result = operate(operator, operand1, operand2);
@@ -166,6 +182,8 @@ function updateResults() {
   return result;
 }
 
+
+// append previous result history above the display box
 function appendResults () {
   const resultBox = document.createElement('div');
   resultBox.classList.add('result-box', 'box');
@@ -186,6 +204,7 @@ function appendResults () {
   resultSection.insertBefore(resultBox, resultSection.children[0]);
 }
 
+// resets everything back to default
 function clearData(e) {
   operand1 = '';
   operand2 = '';
@@ -193,7 +212,9 @@ function clearData(e) {
   result = 0;
   resultFlag = false;
   signFlag = false; // off
+  previousResult = true;
 
-  display.textContent = '';
+  display.classList.add('bold');
+  display.textContent = '0';
   resultSection.textContent = '';
 }
