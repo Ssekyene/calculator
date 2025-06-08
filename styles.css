@@ -25,16 +25,33 @@ body {
 .header {
     width: 100%;
     display: flex;
-    justify-content: center;
     align-items: center;
-    padding: 10px 0;
+    gap: 10px;
+    padding: 8px 8px;
     border-bottom: 2px solid rgb(23 24 26);
     margin-bottom: 20px;
     font-size: 24px;
     font-weight: bold;
-   
+    
 }
 
+#undo-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.calc-mode {
+    font-size: 16px;
+    color: #D1D5DC;
+    font-weight: 900;
+    padding: 4px 4px;
+    border: none;
+    background-color: #1f1f20;
+    cursor: pointer;
+
+}
 .results {
     width: 100%;
     height: 200px;
@@ -112,6 +129,7 @@ div.box {
     color: #D1D5DC;
     font-size: 18px;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
 }
 
 .keys:hover {
@@ -121,4 +139,18 @@ div.box {
 div.bold {
     font-size: 24px;
     font-weight: 900;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    color: #D1D5DC; 
+    background-color: rgba(45, 45, 46, 0.5);
+}
+
+
+.btn:hover {
+    background-color: rgba(45, 45, 46, 0.9)
 }

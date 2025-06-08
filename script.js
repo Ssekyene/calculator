@@ -49,7 +49,7 @@ let result = 0;
 let previousResult = true; // display initialise with a 0 
 let resultFlag = false;
 let signFlag = false; // off
-const displayables = '0123456789.+-*/%';
+const displayables = '0123456789.+-*/';
 const digits = '.0123456789';
 const operators = '+-*/';
 
@@ -59,16 +59,22 @@ const display = document.querySelector('#display');
 const equalsBtn = document.querySelector('#equals-btn');
 const resultSection = document.querySelector('#results');
 const clearBtn = document.querySelector('#all-clear');
+const undoBtn = document.querySelector('#undo-btn');
 
 display.classList.add('bold');
 
 buttons.addEventListener('click', getClickInput);
 equalsBtn.addEventListener('click', calculate);
 clearBtn.addEventListener('click', clearData);
+undoBtn.addEventListener('click', undoOperation);
 
 window.addEventListener('keydown', getKeyboardInput);
 
 /****  END GLOBAL SCOPE *****/
+
+function undoOperation(e) {
+  return e;
+}
 
 
 // captures the click input variables

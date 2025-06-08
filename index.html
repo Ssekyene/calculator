@@ -7,8 +7,26 @@
     <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+    <header>
+        <div>
+            <div>
+                <a href="">LOGO</a>
+            </div>
+            <div>
+                <a href="">Github</a>
+            </div>
+        </div>
+    </header>
     <div class="ctn">
-        <h2 class="header">Basic Calculator</h2>
+        <section class="header">
+            <div id="undo-btn" class="btn">Undo</div>
+            <div>
+                <select name="" id="" class="calc-mode">
+                    <option value="Basic">Basic</option>
+                    <option value="Scientific" disabled>Scientific</option>
+                </select>
+            </div>
+        </section>
         <section id="results" class="results"></section>
         <div id="display" class="display box">0</div>
         <section class="buttons">
