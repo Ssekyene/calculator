@@ -62,19 +62,38 @@ const clearBtn = document.querySelector('#all-clear');
 
 display.classList.add('bold');
 
-buttons.addEventListener('click', setDisplay);
+buttons.addEventListener('click', getClickInput);
 equalsBtn.addEventListener('click', calculate);
 clearBtn.addEventListener('click', clearData);
 
+window.addEventListener('keydown', getKeyboardInput);
+
 /****  END GLOBAL SCOPE *****/
 
-// makes a screen display for the buttons being places
-// and captures the input variables
-function setDisplay(event) {
+
+// captures the click input variables
+function getClickInput(event) {
     const target = event.target;
     let value = target.getAttribute('data-value');
+    setDisplay(value);
+}
 
-    if (displayables.includes(value)) {
+
+// caputures the keyboard input variables
+function getKeyboardInput(event) {
+  // console.log(event.key)
+  const value = event.key;
+  if (value === 'Enter')
+    calculate();
+  else if (value === 'Escape')
+    clearData();
+  else
+    setDisplay(value);
+}
+
+// appends the input value it to the operands and the display
+function setDisplay(value) {
+  if (displayables.includes(value)) {
       // remove result styles if any
       display.classList.remove('bold');
       // assign operand1 previous results if they exist
@@ -132,9 +151,8 @@ function setDisplay(event) {
       // append the pressed button values to display
       display.textContent += value;
     }
-
-    
 }
+
 
 // makes a calculation when equals sign button is pressed
 function calculate () {
