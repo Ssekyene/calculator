@@ -46,9 +46,15 @@ let operand1 = '';
 let operand2 = '';
 let operator = '';
 let result = 0;
+let previousValues = {
+  operand1,
+  operator,
+  operand2, 
+};
 let previousResult = true; // display initialise with a 0 
 let resultFlag = false;
 let signFlag = false; // off
+let updateResultsFlag = false; // off
 const displayables = '0123456789.+-*/';
 const digits = '.0123456789';
 const operators = '+-*/';
@@ -73,9 +79,68 @@ window.addEventListener('keydown', getKeyboardInput);
 /****  END GLOBAL SCOPE *****/
 
 function undoOperation(e) {
-  return e;
+  // undo the whole display if there was a previous calculation
+  if (updateResultsFlag || resultFlag) {
+    display.classList.remove('bold');
+    display.textContent = '';
+    if (updateResultsFlag) {
+      updateResultsFlag = false; // put it off after use
+      operand1 = previousValues.operand1;
+      operator = previousValues.operator;
+      operand2 = previousValues.operand2;
+      display.textContent = `${operand1}${operator}${operand2}`;
+    } else {
+      resultFlag = false; // put it off after use
+      displayPreviousWorking();
+    }
+  }
+  // undo one charactor at a time
+  else {
+    if (operand2 !== '') {
+      // slice off operand2
+      operand2 = operand2.slice(0, -1);
+      removeFromDisplay();
+    } else if (operator !== '') {
+      // slice off the operator
+      operator = operator.slice(0, -1);
+      removeFromDisplay();
+    } else if (operand1 !== '') {
+      // slice off operand1
+      operand1 = operand1.slice(0, -1);
+      removeFromDisplay();
+    } else {
+      // remove any other displayed text such as the error messages
+      removeFromDisplay();
+    }
+  }
 }
 
+function displayPreviousWorking() {
+  const previousWorking = resultSection.children[0].children[0].textContent;
+  resultSection.removeChild(resultSection.children[0]);
+  const workingArr = previousWorking.split('');
+  for (c of workingArr) {
+    setDisplay(c);
+  }
+}
+
+function removeFromDisplay() {
+  if (display.textContent === '') {
+    // if there is any previous results, toggle the result flag on
+    if(resultSection.children[0]) {
+      resultFlag = true;
+    } else {
+      display.classList.add('bold');
+      display.textContent = '0';
+
+    }
+  } else {
+    const text = display.textContent.split('');
+    text.pop();
+    const newText = text.join('');
+    display.textContent = newText;
+  }
+}
 
 // captures the click input variables
 function getClickInput(event) {
@@ -93,15 +158,20 @@ function getKeyboardInput(event) {
     calculate();
   else if (value === 'Escape')
     clearData();
+  else if (value === ' ')
+    undoOperation();
   else
     setDisplay(value);
 }
 
-// appends the input value it to the operands and the display
+// stores operands and the operator while displaying them on the screen
 function setDisplay(value) {
   if (displayables.includes(value)) {
       // remove result styles if any
       display.classList.remove('bold');
+
+      if (display.textContent === '0' && operand1 === '')
+        display.textContent = '';
       // assign operand1 previous results if they exist
       if (resultFlag) {
         resultFlag = false;
@@ -109,6 +179,11 @@ function setDisplay(value) {
         result = 0; // reset to default
         display.textContent = operand1;
       }
+
+      if (updateResultsFlag)
+        updateResultsFlag = false;
+
+
       // clear the display box incase a button other than an operator is pressed
       // to do a fresh input of operands and the operator
       if (previousResult && !operators.includes(value) && result === 0 && operator === '') {
@@ -139,12 +214,14 @@ function setDisplay(value) {
       }
       // deal with operand2 after the operator is captured (not empty)
       else if (operator !== '') {
+
         // incase the next pressed button is an operator and operand2 is already
         // captured, refresh with answers to the previous two operands and continue
         // with that
         if (operators.includes(value) && operand2 !== '') {
           const opt = value;
           value = updateResults();
+          // for a valid answer
           if (value) {
             operand1 = value;
             operator = opt;
@@ -183,6 +260,7 @@ function calculate () {
   else {
     result = 0;
   }
+
   // reset the variables for other calculations
   operator = '';
   operand1 = '';
@@ -195,7 +273,17 @@ function calculate () {
 // operands before calculating the third operand and appends
 // returns the result for display and continued operation
 function updateResults() {
+  updateResultsFlag = true;
+  // store previous values for undo operation
+  previousValues.operand1 = operand1;
+  previousValues.operator = operator;
+  previousValues.operand2 = operand2;
+
   result = operate(operator, operand1, operand2);
+  // clear previous values for new calcultions
+  operand1 = '';
+  operand2 = '';
+  operator = '';
   display.classList.add('bold');
   if (Number.isNaN(result) || result instanceof Error) {
     if (result instanceof Error) {
@@ -209,9 +297,7 @@ function updateResults() {
   } else {
     display.textContent = '';
   }
-  
-  operand2 = '';
-  operator = '';
+
   return result;
 }
 
@@ -245,6 +331,7 @@ function clearData(e) {
   result = 0;
   resultFlag = false;
   signFlag = false; // off
+  updateResultsFlag = false; // off
   previousResult = true;
 
   display.classList.add('bold');
