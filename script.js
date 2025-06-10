@@ -41,7 +41,7 @@ function operate(operator, operand1, operand2) {
 
 /****  GLOBAL SCOPE *****/
 
-// initialisations
+// Defaults
 let operand1 = '';
 let operand2 = '';
 let operator = '';
@@ -55,6 +55,9 @@ let previousResult = true; // display initialise with a 0
 let resultFlag = false;
 let signFlag = false; // off
 let updateResultsFlag = false; // off
+let deleteFlag = false; // off
+
+// Declarations
 const displayables = '0123456789.+-*/';
 const digits = '.0123456789';
 const operators = '+-*/';
@@ -66,32 +69,48 @@ const equalsBtn = document.querySelector('#equals-btn');
 const resultSection = document.querySelector('#results');
 const clearBtn = document.querySelector('#all-clear');
 const undoBtn = document.querySelector('#undo-btn');
+const delBtn = document.querySelector('#del');
 
 display.classList.add('bold');
 
 buttons.addEventListener('click', getClickInput);
 equalsBtn.addEventListener('click', calculate);
-clearBtn.addEventListener('click', clearData);
+clearBtn.addEventListener('click', clearAllData);
 undoBtn.addEventListener('click', undoOperation);
+delBtn.addEventListener('click', clearCurrentOperation);
 
 window.addEventListener('keydown', getKeyboardInput);
 
 /****  END GLOBAL SCOPE *****/
 
+function clearCurrentOperation (e) {
+  deleteFlag = true;
+  // store current values for undo incase
+  previousValues.operand1 = operand1;
+  previousValues.operator = operator;
+  previousValues.operand2 = operand2;
+  
+  display.textContent = '';
+}
+
 function undoOperation(e) {
   // undo the whole display if there was a previous calculation
-  if (updateResultsFlag || resultFlag) {
+  if (updateResultsFlag || resultFlag || deleteFlag) {
     display.classList.remove('bold');
     display.textContent = '';
+    // undo a previous calculation update which happens when more than two operands
+    // are to be calculated in a row without pressing equals
     if (updateResultsFlag) {
       updateResultsFlag = false; // put it off after use
-      operand1 = previousValues.operand1;
-      operator = previousValues.operator;
-      operand2 = previousValues.operand2;
+      retrivePreviousValues();
       display.textContent = `${operand1}${operator}${operand2}`;
-    } else {
+    } else if (resultFlag) {
       resultFlag = false; // put it off after use
       displayPreviousWorking();
+    } else if (deleteFlag) {
+      deleteFlag = false;
+      retrivePreviousValues();
+      display.textContent = `${operand1}${operator}${operand2}`;
     }
   }
   // undo one charactor at a time
@@ -115,6 +134,13 @@ function undoOperation(e) {
   }
 }
 
+
+function retrivePreviousValues() {
+  operand1 = previousValues.operand1;
+  operator = previousValues.operator;
+  operand2 = previousValues.operand2;
+}
+
 function displayPreviousWorking() {
   const previousWorking = resultSection.children[0].children[0].textContent;
   resultSection.removeChild(resultSection.children[0]);
@@ -123,6 +149,7 @@ function displayPreviousWorking() {
     setDisplay(c);
   }
 }
+
 
 function removeFromDisplay() {
   if (display.textContent === '') {
@@ -157,7 +184,7 @@ function getKeyboardInput(event) {
   if (value === 'Enter')
     calculate();
   else if (value === 'Escape')
-    clearData();
+    clearAllData();
   else if (value === ' ')
     undoOperation();
   else
@@ -182,6 +209,8 @@ function setDisplay(value) {
 
       if (updateResultsFlag)
         updateResultsFlag = false;
+      if (deleteFlag)
+        deleteFlag = false;
 
 
       // clear the display box incase a button other than an operator is pressed
@@ -324,7 +353,7 @@ function appendResults () {
 }
 
 // resets everything back to default
-function clearData(e) {
+function clearAllData(e) {
   operand1 = '';
   operand2 = '';
   operator = '';
