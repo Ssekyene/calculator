@@ -20,6 +20,12 @@ function divide(a, b) {
     return a / b;
 }
 
+function modulus(a, b) {
+  if (b === 0) {
+    return Error('Math Error: Cannot divide by zero');
+  }
+  return a % b;
+}
 
 function operate(operator, operand1, operand2) {
   // parse the strings to there relative numbers
@@ -27,13 +33,15 @@ function operate(operator, operand1, operand2) {
   const b = +operand2;
     switch (operator) {
         case '+':
-            return add(a, b);
+          return add(a, b);
         case '-':
-            return subtract(a, b);
+          return subtract(a, b);
         case '*':
-            return multiply(a, b);
+          return multiply(a, b);
         case '/':
-            return divide(a, b);
+          return divide(a, b);
+        case '%':
+          return modulus(a, b);
         default:
             return Error("Syntax Error: Unknown operation");
     }
@@ -57,10 +65,10 @@ let signFlag = false; // off
 let updateResultsFlag = false; // off
 let deleteFlag = false; // off
 
-// Declarations
-const displayables = '0123456789.+-*/';
-const digits = '.0123456789';
-const operators = '+-*/';
+// Costants
+const DISPLAYABLES = '0123456789.+-*/%';
+const DIGITS = '.0123456789';
+const OPERATORS = '+-*/ %';
 
 // DOM elements
 const buttons = document.querySelector('.buttons');
@@ -89,6 +97,10 @@ function clearCurrentOperation (e) {
   previousValues.operand1 = operand1;
   previousValues.operator = operator;
   previousValues.operand2 = operand2;
+  // delete all the current values
+  operand1 = '';
+  operator = '';
+  operand2 = '';
   
   display.textContent = '';
 }
@@ -110,7 +122,8 @@ function undoOperation(e) {
     } else if (deleteFlag) {
       deleteFlag = false;
       retrivePreviousValues();
-      display.textContent = `${operand1}${operator}${operand2}`;
+      let operatorSign = operator === '%'? ' mod ' : operator;
+      display.textContent = `${operand1}${operatorSign}${operand2}`;
     }
   }
   // undo one charactor at a time
@@ -120,8 +133,8 @@ function undoOperation(e) {
       operand2 = operand2.slice(0, -1);
       removeFromDisplay();
     } else if (operator !== '') {
-      // slice off the operator
-      operator = operator.slice(0, -1);
+      // remove the operator
+      operator = '';
       removeFromDisplay();
     } else if (operand1 !== '') {
       // slice off operand1
@@ -144,9 +157,18 @@ function retrivePreviousValues() {
 function displayPreviousWorking() {
   const previousWorking = resultSection.children[0].children[0].textContent;
   resultSection.removeChild(resultSection.children[0]);
-  const workingArr = previousWorking.split('');
-  for (c of workingArr) {
-    setDisplay(c);
+  let workingArr = previousWorking.split('');
+  let len = workingArr.length;
+  for (let i=0; i < len; i++) {
+    // if ' mod ' exists, replace its first charactor with % and skip the rest 
+    if (workingArr[i] === ' ' && workingArr[i+1] === 'm') {
+      workingArr[i] = '%';
+      setDisplay(workingArr[i]);
+      i = i+4;
+    } else {
+      setDisplay(workingArr[i]);
+    }
+
   }
 }
 
@@ -162,9 +184,20 @@ function removeFromDisplay() {
 
     }
   } else {
-    const text = display.textContent.split('');
-    text.pop();
-    const newText = text.join('');
+    const text = display.textContent;
+    const charactors = text.split('');
+    let len = charactors.length;
+    // checking the last two charactors to check for ' mod '
+    if (charactors[len-1] === ' ' && charactors[len-2] === 'd') {
+      // undo 5 charactors of ' mod '
+      for (let i=0; i<5; i++) {
+        charactors.pop();
+      }
+    } else {
+      // undo one charactor
+      charactors.pop();
+    }
+    const newText = charactors.join('');
     display.textContent = newText;
   }
 }
@@ -193,7 +226,7 @@ function getKeyboardInput(event) {
 
 // stores operands and the operator while displaying them on the screen
 function setDisplay(value) {
-  if (displayables.includes(value)) {
+  if (DISPLAYABLES.includes(value)) {
       // remove result styles if any
       display.classList.remove('bold');
 
@@ -215,7 +248,7 @@ function setDisplay(value) {
 
       // clear the display box incase a button other than an operator is pressed
       // to do a fresh input of operands and the operator
-      if (previousResult && !operators.includes(value) && result === 0 && operator === '') {
+      if (previousResult && !OPERATORS.includes(value) && result === 0 && operator === '') {
         operand1 = '';
         display.textContent = '';
         previousResult = false;
@@ -228,17 +261,18 @@ function setDisplay(value) {
       }
       // fill in for operand1 if the value is a digit
       // while the operator and operand2 variables are empty
-      if (digits.includes(value) && operator === '' && operand2 == '') {
+      if (DIGITS.includes(value) && operator === '' && operand2 == '') {
           operand1 += value;
       } 
       // if the value is an operator consider two situations down
-      else if (operators.includes(value) && operator === '' && operand2 === '') {
+      else if (OPERATORS.includes(value) && operator === '' && operand2 === '') {
         if (signFlag) {
           signFlag = false; // off
             operand1 += value;
         }
         else {
-          operator += value;
+          operator = value;
+          if (value === '%') value = ' mod ';
         }
       }
       // deal with operand2 after the operator is captured (not empty)
@@ -247,13 +281,16 @@ function setDisplay(value) {
         // incase the next pressed button is an operator and operand2 is already
         // captured, refresh with answers to the previous two operands and continue
         // with that
-        if (operators.includes(value) && operand2 !== '') {
-          const opt = value;
+        if (OPERATORS.includes(value) && operand2 !== '') {
+          let opt = value;
+          // replace the value to act as operand1 in case its a valid answer from the
+          // previous calculation
           value = updateResults();
           // for a valid answer
           if (value) {
             operand1 = value;
             operator = opt;
+            if (opt === '%') opt = ' mod ';
             value += opt;
           }
         } else {
@@ -339,7 +376,9 @@ function appendResults () {
   const equals = document.createElement('span');
   const answer = document.createElement('span');
   working.id = 'working';
-  working.textContent = `${operand1}${operator}${operand2}`;
+  // check for ' mod ' operator
+  let operatorSign = operator === '%'? ' mod ' : operator;
+  working.textContent = `${operand1}${operatorSign}${operand2}`;
   equals.id = 'equals';
   equals.textContent = '=';
   answer.id = 'answer';
