@@ -27,24 +27,43 @@ function modulus(a, b) {
   return a % b;
 }
 
-function operate(operator, operand1, operand2) {
-  // parse the strings to there relative numbers
-  const a = +operand1;
-  const b = +operand2;
-    switch (operator) {
-        case '+':
-          return add(a, b);
-        case '-':
-          return subtract(a, b);
-        case '*':
-          return multiply(a, b);
-        case '/':
-          return divide(a, b);
-        case '%':
-          return modulus(a, b);
-        default:
-            return Error("Syntax Error: Unknown operation");
+/** parse operand string to get its relative number
+    if there is a percentage and its at the end
+    multiply the number part with 0.01
+    otherwise just change the operand into a number
+*/
+function parseOperand(op) {
+  let parsedOP;
+  if (op.includes('%') && op.length > 1) {
+    if (op.charAt(op.length - 1) === '%') {
+     parsedOP = +op.slice(0, -1) * 0.01;
+    } else {
+      // if percent is not at the end, return the exact value
+      parsedOP = op;
     }
+  } else {
+    parsedOP = +op;
+  }
+  return parsedOP;
+}
+
+function operate(operator, operand1, operand2) {
+  let a = parseOperand(operand1);
+  let b = parseOperand(operand2);
+  switch (operator) {
+    case '+':
+      return add(a, b);
+    case '-':
+      return subtract(a, b);
+    case '*':
+      return multiply(a, b);
+    case '/':
+      return divide(a, b);
+    case '%':
+      return modulus(a, b);
+    default:
+      return Error("Syntax Error: Unknown operation");
+  }
 }
 
 /****  GLOBAL SCOPE *****/
@@ -64,6 +83,7 @@ let resultFlag = false;
 let signFlag = false; // off
 let updateResultsFlag = false; // off
 let deleteFlag = false; // off
+let errorFlag = false;
 
 // Costants
 const DISPLAYABLES = {
@@ -83,10 +103,10 @@ const DISPLAYABLES = {
   '*': '*',
   '/': '/',
   '%': '%',
+  'percent': 'percent',
 };
 
 const DIGITS = {
-  '.': '.',
   0: 0,
   1: 1,
   2: 2,
@@ -97,6 +117,8 @@ const DIGITS = {
   7: 7,
   8: 8,
   9: 9,
+  '.': '.',
+  'percent': 'percent',
 }
 
 const OPERATORS = {
@@ -130,10 +152,7 @@ window.addEventListener('keydown', getKeyboardInput);
 
 function clearCurrentOperation (e) {
   deleteFlag = true;
-  // store current values for undo incase
-  previousValues.operand1 = operand1;
-  previousValues.operator = operator;
-  previousValues.operand2 = operand2;
+  storePreviousResults();
   // delete all the current values
   operand1 = '';
   operator = '';
@@ -142,9 +161,17 @@ function clearCurrentOperation (e) {
   display.textContent = '';
 }
 
+
+function storePreviousResults() {
+  previousValues.operand1 = operand1;
+  previousValues.operator = operator;
+  previousValues.operand2 = operand2;
+}
+
+
 function undoOperation(e) {
   // undo the whole display if there was a previous calculation
-  if (updateResultsFlag || resultFlag || deleteFlag) {
+  if (updateResultsFlag || resultFlag || deleteFlag || errorFlag) {
     display.classList.remove('bold');
     display.textContent = '';
     // undo a previous calculation update which happens when more than two operands
@@ -161,6 +188,10 @@ function undoOperation(e) {
       retrivePreviousValues();
       let operatorSign = operator === '%'? ' mod ' : operator;
       display.textContent = `${operand1}${operatorSign}${operand2}`;
+    } else if (errorFlag) {
+      errorFlag = false;
+      retrivePreviousValues();
+       display.textContent = `${operand1}${operator}${operand2}`;
     }
   }
   // undo one charactor at a time
@@ -267,8 +298,10 @@ function setDisplay(value) {
       // remove result styles if any
       display.classList.remove('bold');
 
-      if (display.textContent === '0' && operand1 === '')
+      if (display.textContent === '0' && operand1 === '') {
         display.textContent = '';
+
+      }
       // assign operand1 previous results if they exist
       if (resultFlag) {
         resultFlag = false;
@@ -299,14 +332,20 @@ function setDisplay(value) {
       // fill in for operand1 if the value is a digit
       // while the operator and operand2 variables are empty
       if ((value in DIGITS) && operator === '' && operand2 == '') {
+
+          if (value === DIGITS.percent) {
+            value = '%';
+          }
           operand1 += value;
       } 
       // if the value is an operator consider two situations down
       else if ((value in OPERATORS) && operator === '' && operand2 === '') {
+        // is it a sign (unary operator)
         if (signFlag) {
           signFlag = false; // off
             operand1 += value;
         }
+        // or a binary operator
         else {
           operator = value;
           if (value === '%') value = ' mod ';
@@ -331,6 +370,7 @@ function setDisplay(value) {
             value += opt;
           }
         } else {
+          if (value === DIGITS.percent) value = '%';
           operand2 += value;
         }
       }
@@ -346,6 +386,8 @@ function calculate () {
   result = operate(operator, operand1, operand2);
   display.classList.add('bold');
   if (Number.isNaN(result) || result instanceof Error) {
+    resultFlag = false; // put it off for no valid result
+    errorFlag = true;
     if (result instanceof Error) {
       display.textContent = result.message;
     } else {
@@ -363,6 +405,8 @@ function calculate () {
   else {
     result = 0;
   }
+
+  storePreviousResults();
 
   // reset the variables for other calculations
   operator = '';
@@ -389,13 +433,14 @@ function updateResults() {
   operator = '';
   display.classList.add('bold');
   if (Number.isNaN(result) || result instanceof Error) {
+    updateResultsFlag = false;
+    errorFlag = true;
     if (result instanceof Error) {
       display.textContent = result.message;
       return '';
     } else {
       display.textContent = 'Syntax Error!';
       return '';
-
     }
   } else {
     display.textContent = '';
@@ -415,6 +460,12 @@ function appendResults () {
   working.id = 'working';
   // check for ' mod ' operator
   let operatorSign = operator === '%'? ' mod ' : operator;
+
+  // first parse the operands for potential `%` evaluation
+  // and change them back to strings
+  operand1 = String(parseOperand(operand1));
+  operand2 = String(parseOperand(operand2));
+
   working.textContent = `${operand1}${operatorSign}${operand2}`;
   equals.id = 'equals';
   equals.textContent = '=';
@@ -438,6 +489,7 @@ function clearAllData(e) {
   signFlag = false; // off
   updateResultsFlag = false; // off
   previousResult = true;
+  errorFlag = false;
 
   display.classList.add('bold');
   display.textContent = '0';
