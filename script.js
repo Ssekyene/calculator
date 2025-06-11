@@ -66,9 +66,46 @@ let updateResultsFlag = false; // off
 let deleteFlag = false; // off
 
 // Costants
-const DISPLAYABLES = '0123456789.+-*/%';
-const DIGITS = '.0123456789';
-const OPERATORS = '+-*/ %';
+const DISPLAYABLES = {
+  0: 0,
+  1: 1,
+  2: 2,
+  3: 3,
+  4: 4,
+  5: 5,
+  6: 6,
+  7: 7,
+  8: 8,
+  9: 9,
+  '.': '.',
+  '+': '+',
+  '-':'-',
+  '*': '*',
+  '/': '/',
+  '%': '%',
+};
+
+const DIGITS = {
+  '.': '.',
+  0: 0,
+  1: 1,
+  2: 2,
+  3: 3,
+  4: 4,
+  5: 5,
+  6: 6,
+  7: 7,
+  8: 8,
+  9: 9,
+}
+
+const OPERATORS = {
+  '+': '+',
+  '-':'-',
+  '*': '*',
+  '/': '/',
+  '%': '%',
+}
 
 // DOM elements
 const buttons = document.querySelector('.buttons');
@@ -226,7 +263,7 @@ function getKeyboardInput(event) {
 
 // stores operands and the operator while displaying them on the screen
 function setDisplay(value) {
-  if (DISPLAYABLES.includes(value)) {
+  if (value in DISPLAYABLES) {
       // remove result styles if any
       display.classList.remove('bold');
 
@@ -248,7 +285,7 @@ function setDisplay(value) {
 
       // clear the display box incase a button other than an operator is pressed
       // to do a fresh input of operands and the operator
-      if (previousResult && !OPERATORS.includes(value) && result === 0 && operator === '') {
+      if (previousResult && !(value in OPERATORS) && result === 0 && operator === '') {
         operand1 = '';
         display.textContent = '';
         previousResult = false;
@@ -261,11 +298,11 @@ function setDisplay(value) {
       }
       // fill in for operand1 if the value is a digit
       // while the operator and operand2 variables are empty
-      if (DIGITS.includes(value) && operator === '' && operand2 == '') {
+      if ((value in DIGITS) && operator === '' && operand2 == '') {
           operand1 += value;
       } 
       // if the value is an operator consider two situations down
-      else if (OPERATORS.includes(value) && operator === '' && operand2 === '') {
+      else if ((value in OPERATORS) && operator === '' && operand2 === '') {
         if (signFlag) {
           signFlag = false; // off
             operand1 += value;
@@ -281,7 +318,7 @@ function setDisplay(value) {
         // incase the next pressed button is an operator and operand2 is already
         // captured, refresh with answers to the previous two operands and continue
         // with that
-        if (OPERATORS.includes(value) && operand2 !== '') {
+        if ((value in OPERATORS) && operand2 !== '') {
           let opt = value;
           // replace the value to act as operand1 in case its a valid answer from the
           // previous calculation
