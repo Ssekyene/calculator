@@ -34,15 +34,16 @@ function modulus(a, b) {
 */
 function parseOperand(op) {
   let parsedOP;
-  if (op.includes('%') && op.length > 1) {
-    if (op.charAt(op.length - 1) === '%') {
-     parsedOP = +op.slice(0, -1) * 0.01;
+  let operand = String(op);
+  if (operand.includes('%') && operand.length > 1) {
+    if (op.charAt(operand.length - 1) === '%') {
+     parsedOP = +operand.slice(0, -1) * 0.01;
     } else {
       // if percent is not at the end, return the exact value
-      parsedOP = op;
+      parsedOP = operand;
     }
   } else {
-    parsedOP = +op;
+    parsedOP = +operand;
   }
   return parsedOP;
 }
