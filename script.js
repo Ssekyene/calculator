@@ -118,12 +118,12 @@ const delBtn = document.querySelector('#del');
 
 display.classList.add('bold');
 
+// event listeners
 buttons.addEventListener('click', getClickInput);
 equalsBtn.addEventListener('click', calculate);
 clearBtn.addEventListener('click', clearAllData);
 undoBtn.addEventListener('click', undoOperation);
 delBtn.addEventListener('click', clearCurrentOperation);
-
 window.addEventListener('keydown', getKeyboardInput);
 
 /****  END GLOBAL SCOPE *****/
