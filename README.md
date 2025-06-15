@@ -1,6 +1,6 @@
 # Calculator
 
-![calc-snapshot](./calc-snap.png)
+[![calc-snapshot](./calc-snap.png)](https://ssekyene.github.io/calculator/)
 >A basic calculator illustrating the use of vanilla JavaScript, HTML, and CSS to create a functional and interactive user interface.
 
 ## Features
