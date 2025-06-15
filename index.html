@@ -3,22 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basic Calculator</title>
+    <title>Calculator</title>
+    <link rel="icon" href="https://img.icons8.com/color/48/000000/calculator.png" type="image/x-icon">
     <link rel="stylesheet" href="./styles.css">
+    <script src="https://kit.fontawesome.com/626dfc976a.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <header>
-        <div>
-            <div>
-                <a href="">LOGO</a>
+        <div class="header-box">
+            <div class="h-left">
+                <a href="#"><i class="fa-solid fa-calculator"></i>&nbsp;Calculator</a>
             </div>
-            <div>
-                <a href="">Github</a>
+            <div class="h-right">
+                <a href="https://github.com/Ssekyene/calculator" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i>&nbsp;Github</a>
             </div>
         </div>
     </header>
     <div class="ctn">
-        <section class="header">
+        <section class="calc-header">
             <div id="undo-btn" class="btn" title="press Space">Undo</div>
             <div>
                 <select name="" id="" class="calc-mode">
@@ -34,7 +36,7 @@
                 <button class="keys" id="7" data-value="7">7</button>
                 <button class="keys" id="8" data-value="8">8</button>
                 <button class="keys" id="9" data-value="9">9</button>
-                <button class="keys" id="del" title="press Back space">del</button>
+                <button class="keys" id="del" title="press Back space"><i class="fa-solid fa-delete-left" style="font-size: 26px"></i></button>
                 <button class="keys" id="all-clear" title="press Esc">AC</button>
             </div>
             <div class="row box">
@@ -64,7 +66,7 @@
             </div>
         </section>
     </div>
-
+    <footer class="footer">Copyright &copy; Robert Ssekyene 2025</footer>
     <script src="./script.js"></script>
 </body>
 </html>

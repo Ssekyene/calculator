@@ -22,7 +22,7 @@ body {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.9);
 }
 
-.header {
+.calc-header {
     width: 100%;
     display: flex;
     align-items: center;
@@ -33,6 +33,31 @@ body {
     font-size: 24px;
     font-weight: bold;
     
+}
+
+.header-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px 0;
+}
+
+.header-box a {
+    text-decoration: none;
+    color: #D1D5DC;
+    font-size: 24px;
+}
+
+.h-right a {
+    color: #58A6FF;
+}
+
+.h-right a:hover {
+    color: #1F6FEB;
+    text-decoration: underline;
+}
+.h-left a {
+    color: #58A6FF;
 }
 
 #undo-btn {
@@ -111,6 +136,21 @@ div.box {
    
 }
 
+#del {
+    background-color: #691010;
+}
+#del:hover {
+    background-color: #8b1a1a;
+}
+
+#equals-btn {
+    background-color: #105d14;
+}
+
+#equals-btn:hover {
+    background-color: #1a8b1a;
+}
+
 .row {
     display: flex;
     align-items: center;
@@ -153,4 +193,12 @@ div.bold {
 
 .btn:hover {
     background-color: rgba(45, 45, 46, 0.9)
+}
+
+.footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    color: #D1D5DC;
 }
