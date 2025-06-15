@@ -9,6 +9,7 @@
 - All Clear (AC) button to reset the calculator
 - Delete button to clear the input display screen
 - Undo functionality to revert every previous action step by step
+- Keyboard accessibility
 
 ## Operation
 The calculator is only able to operate on two operands at a time eg 2+3, 3 mod 2, 6/7 etc. When an extra operand is added, the answer to the first two will evaluate first and then the calculation continues.
